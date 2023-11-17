@@ -19,13 +19,13 @@ Also, to get starting contributing in OpenTelemetry, please have a look at these
 
 ## ... from zero
 
-If you want to get to your own custom
+If you want to get to your own custom collector:
 
 1. Generate a `builder-config.yaml`. Adjust `name`, `output_path`, `otelcol_version` and the gomod versions, if needed.
     ```
     cat <<EOF > builder-config.yaml
     dist:
-        name: otelcol-de
+        name: otelcol-dev
         description: Basic OTel Collector distribution for Developers
         output_path: ./otelcol-dev
         otelcol_version: 0.88.0
@@ -59,7 +59,7 @@ If you want to get to your own custom
     - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.88.0
     EOF
     ```
-2. Run `ocb --config builder-config.yaml`. A new directory `otelcol-dev` (or what you have defined in `output_path`) is created. The code generated should not be touched, all changes should be done via the `builder-config.yaml` file. You can see the builder configuration of the OpenTelemetry contrib here: https://github.com/open-telemetry/opentelemetry-collector/blob/main/cmd/otelcorecol/builder-config.yaml
+2. Run `ocb --config builder-config.yaml`. A new directory `otelcol-dev` (or what you have defined in `output_path`) is created. The code generated should not be touched, all changes should be done via the `builder-config.yaml` file. You can see the builder configuration of the OpenTelemetry contrib here: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/cmd/otelcontribcol/builder-config.yaml
 3. Go to new `otelcold-dev` and you will see a new executable `otelcol-dev` (or the value defined in `name`). You can execute it by providing a basic configuration file `otelcold-dev --config otelcol.yaml`:
     ```
     cat <<EOF > otelcol.yaml

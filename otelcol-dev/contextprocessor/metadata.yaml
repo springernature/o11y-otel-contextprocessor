@@ -1,0 +1,11 @@
+type: attributes
+
+status:
+  class: processor
+  stability:
+    beta: [traces, metrics, logs]
+  distributions:
+  - contrib
+  warnings: [Identity Conflict]
+  codeowners:
+    active: [jriguera]
