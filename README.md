@@ -1,7 +1,6 @@
-# Basic OpenTelemetry "hello-world" processor
+# Context processor
 
-The purpose of this code is to show how easy is to integrate a new component in OpenTelemetry collector.
-This is a *hello-world processor*, which prints all resource attributes associated with metrics and if there a match with the configuration parameter name, prints its value.
+The purpose of this code is quickly integrate a new component "Context processor" in OpenTelemetry collector.
 
 # About
 
