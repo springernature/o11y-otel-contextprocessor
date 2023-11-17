@@ -2,7 +2,7 @@
 
 The purpose of this code is quickly integrate a new component "Context processor" in OpenTelemetry collector. This is a temporary solution while this functionality is not available in upstream.
 
-You can read about what Context Processor does in its Readme: [otelcol-dev/contextprocessor/README.md](./otelcol-dev/contextprocessor/README.md). And you can see an example configuration in [otelcol-dev/otelcol.yaml](./otelcol-dev/otelcol.yaml)
+You can read about what Context Processor does in [otelcol-dev/contextprocessor/README.md](./otelcol-dev/contextprocessor/README.md). And you can see an example configuration in [otelcol-dev/otelcol.yaml](./otelcol-dev/otelcol.yaml)
 
 # About
 
