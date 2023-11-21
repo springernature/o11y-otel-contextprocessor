@@ -1,7 +1,8 @@
 FROM alpine:3.16 as certs
 RUN apk --update add ca-certificates
 
-FROM scratch
+# Use debian 
+FROM debian:12-slim
 
 ARG USER_UID=10001
 USER ${USER_UID}
