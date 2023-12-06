@@ -113,7 +113,7 @@ func (a *baseAction) getCxtKey() ([]string, bool) {
 		return v, exists
 	} else {
 		value := a.exeContext.cliInfo.Metadata.Get(a.key)
-		return value, len(value) != 0
+		return value, (len(value) != 0)
 	}
 }
 
@@ -130,8 +130,10 @@ func (a *ActionInsert) execute() {
 	if len(a.fromAttr) > 0 {
 		value[0], _ = a.getAttrKey(a.fromAttr, a.value)
 	}
-	if _, exists := a.getCxtKey(); !exists {
+	if currentValue, exists := a.getCxtKey(); !exists {
 		a.exeContext.newMetadata[a.key] = value
+	} else {
+		a.exeContext.newMetadata[a.key] = currentValue
 	}
 }
 
@@ -156,12 +158,16 @@ type ActionUpdate struct {
 }
 
 func (a *ActionUpdate) execute() {
-	value := a.value
+	value := []string{a.value}
 	if len(a.fromAttr) > 0 {
-		value, _ = a.getAttrKey(a.fromAttr, a.value)
+		value[0], _ = a.getAttrKey(a.fromAttr, a.value)
 	}
 	if v, exists := a.getCxtKey(); exists {
-		a.exeContext.newMetadata[a.key] = append(v, value)
+		// There are 2 views here, in this one we add the
+		// new value to the current list of strings
+		a.exeContext.newMetadata[a.key] = append(v, value[0])
+		// Another option is just overwriting the current value
+		// a.exeContext.newMetadata[a.key] = value
 	}
 }
 
