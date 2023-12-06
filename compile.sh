@@ -12,5 +12,5 @@ echo ">>> Pushing image to registry ..."
 docker tag otel-contrib eu.gcr.io/halfpipe-io/ee-o11y/otel-collector:latest
 docker push eu.gcr.io/halfpipe-io/ee-o11y/otel-collector:latest
 
-docker tag otel-contrib eu.gcr.io/halfpipe-io/ee-o11y/otel-collector:0.90.1-o11y1
-docker push eu.gcr.io/halfpipe-io/ee-o11y/otel-collector:0.90.1-o11y1
+docker tag otel-contrib eu.gcr.io/halfpipe-io/ee-o11y/otel-collector:0.90.1-o11y2
+docker push eu.gcr.io/halfpipe-io/ee-o11y/otel-collector:0.90.1-o11y2
