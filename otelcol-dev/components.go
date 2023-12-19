@@ -51,6 +51,7 @@ import (
 	lokiexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/lokiexporter"
 	mezmoexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/mezmoexporter"
 	opencensusexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/opencensusexporter"
+	opensearchexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/opensearchexporter"
 	prometheusexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter"
 	prometheusremotewriteexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusremotewriteexporter"
 	pulsarexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/pulsarexporter"
@@ -81,7 +82,9 @@ import (
 	k8sobserver "github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer/k8sobserver"
 	dockerobserver "github.com/open-telemetry/opentelemetry-collector-contrib/extension/observer/dockerobserver"
 	oidcauthextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/oidcauthextension"
+	opampextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/opampextension"
 	pprofextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension"
+	remotetapextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/remotetapextension"
 	sigv4authextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/sigv4authextension"
 	filestorage "github.com/open-telemetry/opentelemetry-collector-contrib/extension/storage/filestorage"
 	dbstorage "github.com/open-telemetry/opentelemetry-collector-contrib/extension/storage/dbstorage"
@@ -221,7 +224,9 @@ func components() (otelcol.Factories, error) {
 		k8sobserver.NewFactory(),
 		dockerobserver.NewFactory(),
 		oidcauthextension.NewFactory(),
+		opampextension.NewFactory(),
 		pprofextension.NewFactory(),
+		remotetapextension.NewFactory(),
 		sigv4authextension.NewFactory(),
 		filestorage.NewFactory(),
 		dbstorage.NewFactory(),
@@ -359,6 +364,7 @@ func components() (otelcol.Factories, error) {
 		lokiexporter.NewFactory(),
 		mezmoexporter.NewFactory(),
 		opencensusexporter.NewFactory(),
+		opensearchexporter.NewFactory(),
 		prometheusexporter.NewFactory(),
 		prometheusremotewriteexporter.NewFactory(),
 		pulsarexporter.NewFactory(),
