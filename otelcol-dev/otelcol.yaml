@@ -6,9 +6,17 @@ extensions:
     endpoint: 0.0.0.0:55679
   headers_setter:
     headers:
-      - action: update
-        key: X-Scope-OrgID
+      - action: upsert
+        key: X-Scope-OrgId
         from_context: tenant
+  http_forwarder:
+    ingress:
+      endpoint: "0.0.0.0:8081"
+    egress:
+      endpoint: http://http-server:80
+      headers:
+        my-header: otel-forwarder
+      timeout: 5s
 
 receivers:
   prometheus:
@@ -19,6 +27,13 @@ receivers:
           static_configs:
             - targets: ['0.0.0.0:8888']
 
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
 processors:
   groupbyattrs/tenant:
     keys: [service.name]
@@ -26,25 +41,37 @@ processors:
   # service.name comes from the resource attribute from prometheus metrics
   context/tenant:
     actions:
-    - action: upsert
+    - action: insert
       key: tenant
       value: anonymous
-      # from_attribute: tenant
       from_attribute: service.name
 
 exporters:
   debug:
     verbosity: detailed
 
+  otlphttp:
+    endpoint: http://http-server:1080
+    compression: none
+    auth:
+      authenticator: headers_setter
+
+  prometheusremotewrite:
+    endpoint: http://http-server:1080
+    resource_to_telemetry_conversion:
+      enabled: true
+    auth:
+      authenticator: headers_setter
+
 service:
   telemetry:
     logs:
-      level: "debug"
+      level: "info"
   pipelines:
     metrics:
       receivers: [prometheus]
-      processors: [groupbyattrs/tenant, context/tenant]
-      exporters: [debug]
+      processors: [context/tenant]
+      exporters: [otlphttp]
   extensions: 
   - health_check
   - pprof

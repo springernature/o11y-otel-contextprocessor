@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  # And put them in an OTEL collector pipeline...
+  otel-collector:
+    build: .
+    image: otel-contrib
+    command: [ "--config=/etc/otel/otelcol.yaml" ]
+    ports:
+      - 8081:8081
+      - 1777:1777
+      - 55679:55679
+    volumes:
+      - ./otelcol-dev/otelcol.yaml:/etc/otel/otelcol.yaml
+
+  http-server:
+    image: mockserver/mockserver
+    ports:
+      - "8080:1080"
