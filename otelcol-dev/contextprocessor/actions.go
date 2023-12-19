@@ -8,18 +8,18 @@ import (
 	"go.opentelemetry.io/collector/pdata/pcommon"
 )
 
-// The ExeContext the current context and the attributes
-type ExeContext struct {
+// The EventContext the current context and the attributes
+type eventContext struct {
 	ctx           context.Context
 	cliInfo       client.Info
 	resourceAttrs pcommon.Map
 	newMetadata   map[string][]string
 }
 
-// `NewExeContext` constructs an empty ExeContext
-func NewExeContext() *ExeContext {
+// `NewEventContext` constructs an empty EventContext
+func newEventContext() *eventContext {
 	newCtx := context.Background()
-	return &ExeContext{
+	return &eventContext{
 		ctx:           newCtx,
 		cliInfo:       client.FromContext(newCtx),
 		resourceAttrs: pcommon.NewMap(),
@@ -28,75 +28,18 @@ func NewExeContext() *ExeContext {
 }
 
 // Sets a new context
-func (exc *ExeContext) SetContext(ctx context.Context, attrs pcommon.Map) {
-	exc.ctx = ctx
-	exc.cliInfo = client.FromContext(ctx)
-	exc.resourceAttrs = attrs
-	// initialize the context with the keys of the current
-	exc.newMetadata = make(map[string][]string)
-}
-
-func (exc *ExeContext) GetContext() context.Context {
-	return client.NewContext(exc.ctx,
-		client.Info{
-			Metadata: client.NewMetadata(exc.newMetadata),
-		})
-}
-
-func (exc *ExeContext) GenerateAction(action ActionConfig) (Action, error) {
-	base := baseAction{
-		exeContext: exc,
-		key:        *action.Key,
-	}
-	valueDefault := ""
-	if action.ValueDefault != nil {
-		valueDefault = *action.ValueDefault
-	}
-	fromAttribute := ""
-	if action.FromAttribute != nil {
-		fromAttribute = *action.FromAttribute
-	}
-	switch action.Action {
-	case INSERT:
-		return &ActionInsert{
-			baseAction: base,
-			value:      valueDefault,
-			fromAttr:   fromAttribute,
-		}, nil
-	case UPSERT:
-		return &ActionUpsert{
-			baseAction: base,
-			value:      valueDefault,
-			fromAttr:   fromAttribute,
-		}, nil
-	case UPDATE:
-		return &ActionUpdate{
-			baseAction: base,
-			value:      valueDefault,
-			fromAttr:   fromAttribute,
-		}, nil
-	case DELETE:
-		return &ActionDelete{
-			baseAction: base,
-		}, nil
-	default:
-		return nil, fmt.Errorf("unknown action type")
+func createEventContext(ctx context.Context, attrs pcommon.Map) *eventContext {
+	return &eventContext{
+		ctx:           ctx,
+		cliInfo:       client.FromContext(ctx),
+		resourceAttrs: attrs,
+		newMetadata:   make(map[string][]string),
 	}
 }
 
-// Actions
-type Action interface {
-	execute()
-}
-
-type baseAction struct {
-	exeContext *ExeContext
-	key        string
-}
-
-func (a *baseAction) getAttrKey(key, def string) (string, bool) {
+func (exc *eventContext) getAttrKey(key, def string) (string, bool) {
 	value := def
-	v, exists := a.exeContext.resourceAttrs.Get(key)
+	v, exists := exc.resourceAttrs.Get(key)
 	if exists {
 		switch v.Type() {
 		case pcommon.ValueTypeStr:
@@ -108,110 +51,167 @@ func (a *baseAction) getAttrKey(key, def string) (string, bool) {
 	return value, exists
 }
 
-func (a *baseAction) getCxtKey() ([]string, bool) {
-	if v, exists := a.exeContext.newMetadata[a.key]; exists {
+func (exc *eventContext) getContextKey(key string) ([]string, bool) {
+	if v, exists := exc.newMetadata[key]; exists {
 		return v, exists
 	} else {
-		value := a.exeContext.cliInfo.Metadata.Get(a.key)
+		value := exc.cliInfo.Metadata.Get(key)
 		return value, (len(value) != 0)
+	}
+}
+
+func (exc *eventContext) delContextKey(key string) {
+	// Warning: when delete a key is only deleted from newMetadata
+	// so it is available again from the actual metadata
+	delete(exc.newMetadata, key)
+}
+
+func (exc *eventContext) setContextKey(key string, value []string) {
+	exc.newMetadata[key] = value
+}
+
+func (exc *eventContext) getContext() context.Context {
+	return client.NewContext(exc.ctx,
+		client.Info{
+			Metadata: client.NewMetadata(exc.newMetadata),
+		})
+}
+
+// Actions
+type Action interface {
+	execute(*eventContext)
+}
+
+func generateAction(action ActionConfig) (Action, error) {
+	valueDefault := ""
+	if action.ValueDefault != nil {
+		valueDefault = *action.ValueDefault
+	}
+	fromAttribute := ""
+	if action.FromAttribute != nil {
+		fromAttribute = *action.FromAttribute
+	}
+	switch action.Action {
+	case INSERT:
+		return &actionInsert{
+			key:      *action.Key,
+			value:    valueDefault,
+			fromAttr: fromAttribute,
+		}, nil
+	case UPSERT:
+		return &actionUpsert{
+			key:      *action.Key,
+			value:    valueDefault,
+			fromAttr: fromAttribute,
+		}, nil
+	case UPDATE:
+		return &actionUpdate{
+			key:      *action.Key,
+			value:    valueDefault,
+			fromAttr: fromAttribute,
+		}, nil
+	case DELETE:
+		return &actionDelete{
+			key: *action.Key,
+		}, nil
+	default:
+		return nil, fmt.Errorf("unknown action type")
 	}
 }
 
 // Concrete actions
 
-type ActionInsert struct {
-	baseAction
+type actionInsert struct {
+	key      string
 	value    string
 	fromAttr string
 }
 
-func (a *ActionInsert) execute() {
+func (a *actionInsert) execute(eventContext *eventContext) {
 	value := []string{a.value}
 	if len(a.fromAttr) > 0 {
-		value[0], _ = a.getAttrKey(a.fromAttr, a.value)
+		value[0], _ = eventContext.getAttrKey(a.fromAttr, a.value)
 	}
-	if currentValue, exists := a.getCxtKey(); !exists {
-		a.exeContext.newMetadata[a.key] = value
+	if currentValue, exists := eventContext.getContextKey(a.key); !exists {
+		eventContext.setContextKey(a.key, value)
 	} else {
-		a.exeContext.newMetadata[a.key] = currentValue
+		eventContext.setContextKey(a.key, currentValue)
 	}
 }
 
-type ActionUpsert struct {
-	baseAction
+type actionUpsert struct {
+	key      string
 	value    string
 	fromAttr string
 }
 
-func (a *ActionUpsert) execute() {
+func (a *actionUpsert) execute(eventContext *eventContext) {
 	value := []string{a.value}
 	if len(a.fromAttr) > 0 {
-		value[0], _ = a.getAttrKey(a.fromAttr, a.value)
+		value[0], _ = eventContext.getAttrKey(a.fromAttr, a.value)
 	}
-	a.exeContext.newMetadata[a.key] = value
+	eventContext.setContextKey(a.key, value)
 }
 
-type ActionUpdate struct {
-	baseAction
+type actionUpdate struct {
+	key      string
 	value    string
 	fromAttr string
 }
 
-func (a *ActionUpdate) execute() {
+func (a *actionUpdate) execute(eventContext *eventContext) {
 	value := []string{a.value}
 	if len(a.fromAttr) > 0 {
-		value[0], _ = a.getAttrKey(a.fromAttr, a.value)
+		value[0], _ = eventContext.getAttrKey(a.fromAttr, a.value)
 	}
-	if v, exists := a.getCxtKey(); exists {
+	if v, exists := eventContext.getContextKey(a.key); exists {
 		// There are 2 views here, in this one we add the
 		// new value to the current list of strings
-		a.exeContext.newMetadata[a.key] = append(v, value[0])
+		eventContext.setContextKey(a.key, append(v, value[0]))
 		// Another option is just overwriting the current value
-		// a.exeContext.newMetadata[a.key] = value
+		// eventContext.setContextKey(a.key, value)
 	}
 }
 
-type ActionDelete struct {
-	baseAction
+type actionDelete struct {
+	key string
 }
 
-func (a *ActionDelete) execute() {
-	delete(a.exeContext.newMetadata, a.key)
+func (a *actionDelete) execute(eventContext *eventContext) {
+	eventContext.delContextKey(a.key)
 }
 
-///
+/////////////////////////////////
 
-type ExeActionsRunner struct {
-	actions    []Action
-	exeContext *ExeContext
+type ActionsRunner struct {
+	actions []Action
 }
 
-func NewExeActionsRunner() *ExeActionsRunner {
-	return &ExeActionsRunner{
-		actions:    make([]Action, 0),
-		exeContext: NewExeContext(),
+func NewActionsRunner() *ActionsRunner {
+	return &ActionsRunner{
+		actions: make([]Action, 0),
 	}
 }
 
-func (exr *ExeActionsRunner) AddAction(action ActionConfig) error {
-	a, err := exr.exeContext.GenerateAction(action)
+func (ar *ActionsRunner) AddAction(action ActionConfig) error {
+	a, err := generateAction(action)
 	if err == nil {
-		exr.actions = append(exr.actions, a)
+		ar.actions = append(ar.actions, a)
 	}
 	return err
 }
 
 // The executeCommands method executes all the commands
 // one by one
-func (exr *ExeActionsRunner) Apply(ctx context.Context, attrs pcommon.Map) context.Context {
-	exr.exeContext.SetContext(ctx, attrs)
-	for _, a := range exr.actions {
-		a.execute()
+func (ar *ActionsRunner) Apply(ctx context.Context, attrs pcommon.Map) context.Context {
+	eventContext := createEventContext(ctx, attrs)
+	for _, a := range ar.actions {
+		a.execute(eventContext)
 	}
-	return exr.exeContext.GetContext()
+	return eventContext.getContext()
 }
 
-/////////////
+// Usage
 
 // exeRunner = NewExeRunner()
 // for _, action := range cfg.Actions {

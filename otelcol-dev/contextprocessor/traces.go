@@ -19,17 +19,17 @@ func NewContextTracesProcessor(
 	nextConsumer consumer.Traces,
 	eventOptions trace.SpanStartEventOption,
 	actions []ActionConfig) (*contextTracesProcessor, error) {
-	exeRunner := NewExeActionsRunner()
+	aRunner := NewActionsRunner()
 	for _, action := range actions {
-		if err := exeRunner.AddAction(action); err != nil {
+		if err := aRunner.AddAction(action); err != nil {
 			return nil, err
 		}
 	}
 	return &contextTracesProcessor{
 		contextProcessor: contextProcessor{
-			logger:           logger,
-			exeActionsRunner: exeRunner,
-			eventOptions:     eventOptions,
+			logger:        logger,
+			actionsRunner: aRunner,
+			eventOptions:  eventOptions,
 		},
 		nextConsumer: nextConsumer,
 	}, nil
@@ -44,7 +44,7 @@ func (ctxt *contextTracesProcessor) ConsumeTraces(ctx context.Context, td ptrace
 	if rss.Len() > 0 {
 		// Only first batch
 		attrs := rss.At(0).Resource().Attributes()
-		newCtx = ctxt.exeActionsRunner.Apply(ctx, attrs)
+		newCtx = ctxt.actionsRunner.Apply(ctx, attrs)
 	}
 	span.AddEvent("End processing.", ctxt.eventOptions)
 	return ctxt.nextConsumer.ConsumeTraces(newCtx, td)

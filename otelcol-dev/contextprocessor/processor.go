@@ -9,10 +9,10 @@ import (
 )
 
 type contextProcessor struct {
-	logger           *zap.Logger
-	exeActionsRunner *ExeActionsRunner
-	cancel           context.CancelFunc
-	eventOptions     trace.SpanStartEventOption
+	logger        *zap.Logger
+	actionsRunner *ActionsRunner
+	cancel        context.CancelFunc
+	eventOptions  trace.SpanStartEventOption
 }
 
 // implements https://pkg.go.dev/go.opentelemetry.io/collector/component#Component  Start
