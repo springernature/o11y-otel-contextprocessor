@@ -1318,6 +1318,8 @@ github.com/open-telemetry/opentelemetry-collector-contrib/connector/servicegraph
 github.com/open-telemetry/opentelemetry-collector-contrib/connector/servicegraphconnector v0.91.0/go.mod h1:WRxyU9c/krGqb1a3cXqAsLwioxutp78BhwNjvI13Cks=
 github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector v0.91.0 h1:fJOWUu4jQytFmzJLFYU0+rcnEt1vfAyqSZ622tdd81Q=
 github.com/open-telemetry/opentelemetry-collector-contrib/connector/spanmetricsconnector v0.91.0/go.mod h1:B0NLW0AU9C/cJgBDWsQKGKJhEI6/sCz9cQgObbfoA8U=
+github.com/open-telemetry/opentelemetry-collector-contrib/exporter/alertmanagerexporter v0.91.0 h1:qugKfcaLjIJZhjBYjFu3pGLKOK7lyzEgxxRkxq48vYk=
+github.com/open-telemetry/opentelemetry-collector-contrib/exporter/alertmanagerexporter v0.91.0/go.mod h1:IivhMFMwmSxTPJMmP6WDuqfRh8Ur5ZxblQJ6WInY08A=
 github.com/open-telemetry/opentelemetry-collector-contrib/exporter/alibabacloudlogserviceexporter v0.91.0 h1:nW8KcGLUPdumYwcCFVaf6FXOVks5ck8//iJfy63V37Q=
 github.com/open-telemetry/opentelemetry-collector-contrib/exporter/alibabacloudlogserviceexporter v0.91.0/go.mod h1:uyqX73ph2UR+kWKAJEbXdatl4Hynb/mIts1ZVVl/mpk=
 github.com/open-telemetry/opentelemetry-collector-contrib/exporter/awscloudwatchlogsexporter v0.91.0 h1:JaAmYiXOTn8ZM00RFz/Vc8PYzF9vuTNz7eH8/Vh3nHs=

@@ -65,6 +65,7 @@ import (
 	tanzuobservabilityexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/tanzuobservabilityexporter"
 	tencentcloudlogserviceexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/tencentcloudlogserviceexporter"
 	zipkinexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/zipkinexporter"
+	alertmanagerexporter "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/alertmanagerexporter"
 	zpagesextension "go.opentelemetry.io/collector/extension/zpagesextension"
 	ballastextension "go.opentelemetry.io/collector/extension/ballastextension"
 	asapauthextension "github.com/open-telemetry/opentelemetry-collector-contrib/extension/asapauthextension"
@@ -378,6 +379,7 @@ func components() (otelcol.Factories, error) {
 		tanzuobservabilityexporter.NewFactory(),
 		tencentcloudlogserviceexporter.NewFactory(),
 		zipkinexporter.NewFactory(),
+		alertmanagerexporter.NewFactory(),
 	)
 	if err != nil {
 		return otelcol.Factories{}, err
