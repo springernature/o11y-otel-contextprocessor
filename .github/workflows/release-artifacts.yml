@@ -15,11 +15,11 @@ env:
 permissions: {}
 
 jobs:
-  make:
-    permissions:
-      contents: write # to push chart release and create a release (helm/chart-releaser-action)
-      packages: write
+  build:
     runs-on: ubuntu-latest
+    outputs:
+      artifact: ${{ steps.artifact.outputs.artifact-id }}
+      version: ${{ steps.versions.outputs.version }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -36,6 +36,7 @@ jobs:
       run: |
         awk -F':' '/^[[:blank:]]+otelcol_version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "otelcol-version="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
         awk -F':' '/^[[:blank:]]+output_path[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "build-path="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
+        awk -F':' '/^[[:blank:]]+name[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "build-name="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
         awk -F':' '/^[[:blank:]]+version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "version="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
         awk -F':' '/^[[:blank:]]+version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "version="$2 }'
 
@@ -50,8 +51,37 @@ jobs:
       run: |
         ./ocb --config builder-config.yaml
 
+    - name: Archive binary
+      id: artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: otelcol-${{ steps.versions.outputs.version }}
+        retention-days: 1
+        path: "${{ steps.versions.outputs.build-path }}/${{ steps.versions.outputs.build-name }}"
+
+  build-image:
+    permissions:
+      contents: read
+      packages: write
+    needs:
+    - build
+    if: ${{ github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: otelcol-${{ needs.build.outputs.version }}
+        path: otelcol-dev/otelcol-dev
+
+    - name: Display structure of downloaded files
+      run: ls -R otelcol-dev
+
     - name: Get metadata for Docker image
-      if: ${{ github.event_name != 'pull_request' }}
       id: meta
       uses: docker/metadata-action@v5
       with:
@@ -65,7 +95,6 @@ jobs:
 
     - name: Log in to the GitHub Container registry
       uses: docker/login-action@v3
-      if: ${{ github.event_name != 'pull_request' }}
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -73,11 +102,10 @@ jobs:
     
     - name: Build and push to Github Packages
       uses: docker/build-push-action@v5
-      if: ${{ github.event_name != 'pull_request' }}
       with:
         context: ${{ env.DOCKER_BUILD_DIR }}
         push: ${{ github.event_name != 'pull_request' }}
         tags: |
           ${{ steps.meta.outputs.tags }}
-          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.versions.outputs.version }}
+          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.build.outputs.version }}
         labels: ${{ steps.meta.outputs.labels }}
