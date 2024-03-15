@@ -15,7 +15,7 @@ env:
 permissions: {}
 
 jobs:
-  build:
+  compile:
     runs-on: ubuntu-latest
     outputs:
       artifact: ${{ steps.artifact.outputs.artifact-id }}
@@ -38,7 +38,6 @@ jobs:
         awk -F':' '/^[[:blank:]]+output_path[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "build-path="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
         awk -F':' '/^[[:blank:]]+name[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "build-name="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
         awk -F':' '/^[[:blank:]]+version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "version="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
-        awk -F':' '/^[[:blank:]]+version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "version="$2 }'
 
     - name: Download the collector builder
       run: |
@@ -58,13 +57,15 @@ jobs:
         name: otelcol-${{ steps.versions.outputs.version }}
         retention-days: 1
         path: "${{ steps.versions.outputs.build-path }}/${{ steps.versions.outputs.build-name }}"
+        if-no-files-found: error
+        overwrite: true
 
   build-image:
     permissions:
       contents: read
       packages: write
     needs:
-    - build
+    - compile
     if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
@@ -75,11 +76,11 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        name: otelcol-${{ needs.build.outputs.version }}
+        name: otelcol-${{ needs.compile.outputs.version }}
         path: otelcol-dev/otelcol-dev
 
     - name: Display structure of downloaded files
-      run: ls -R otelcol-dev
+      run: ls -lasR otelcol-dev
 
     - name: Get metadata for Docker image
       id: meta
@@ -107,5 +108,5 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: |
           ${{ steps.meta.outputs.tags }}
-          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.build.outputs.version }}
+          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.compile.outputs.version }}
         labels: ${{ steps.meta.outputs.labels }}
