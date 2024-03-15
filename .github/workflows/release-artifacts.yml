@@ -37,6 +37,7 @@ jobs:
         awk -F':' '/^[[:blank:]]+otelcol_version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "otelcol-version="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
         awk -F':' '/^[[:blank:]]+output_path[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "build-path="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
         awk -F':' '/^[[:blank:]]+version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "version="$2 }' builder-config.yaml >> $GITHUB_OUTPUT
+        awk -F':' '/^[[:blank:]]+version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print "version="$2 }'
 
     - name: Download the collector builder
       run: |
