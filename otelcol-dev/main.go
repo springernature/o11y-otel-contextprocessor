@@ -14,7 +14,7 @@ func main() {
 	info := component.BuildInfo{
 		Command:     "otelcol-dev",
 		Description: "Basic OTel Collector distribution for Developers",
-		Version:     "0.96.0-sn",
+		Version:     "0.97.0",
 	}
 
 	if err := run(otelcol.CollectorSettings{BuildInfo: info, Factories: components}); err != nil {
