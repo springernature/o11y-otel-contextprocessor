@@ -10,8 +10,8 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-const (
-	typeStr = "context"
+var (
+	cfgType = component.MustNewType("context")
 )
 
 var (
@@ -27,7 +27,7 @@ func createDefaultConfig() component.Config {
 // NewFactory returns a new factory for the Resource processor.
 func NewFactory() processor.Factory {
 	return processor.NewFactory(
-		typeStr,
+		cfgType,
 		createDefaultConfig,
 		processor.WithMetrics(createMetricsProcessor, component.StabilityLevelAlpha),
 		processor.WithLogs(createLogsProcessor, component.StabilityLevelAlpha),
