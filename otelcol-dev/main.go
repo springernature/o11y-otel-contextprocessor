@@ -14,8 +14,6 @@ import (
 	httpprovider "go.opentelemetry.io/collector/confmap/provider/httpprovider"
 	httpsprovider "go.opentelemetry.io/collector/confmap/provider/httpsprovider"
 	yamlprovider "go.opentelemetry.io/collector/confmap/provider/yamlprovider"
-	s3provider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/s3provider"
-	secretsmanagerprovider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/secretsmanagerprovider"
 	"go.opentelemetry.io/collector/otelcol"
 )
 
@@ -37,8 +35,6 @@ func main() {
 					httpprovider.NewFactory(),
 					httpsprovider.NewFactory(),
 					yamlprovider.NewFactory(),
-					s3provider.NewFactory(),
-					secretsmanagerprovider.NewFactory(),
 				},
 				ConverterFactories: []confmap.ConverterFactory{
 					expandconverter.NewFactory(),
