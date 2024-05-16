@@ -1,7 +1,7 @@
 dist:
-  module: github.com/open-telemetry/opentelemetry-collector-contrib/cmd/otelcontribcol
   name: otelcol-dev
   description: Local OpenTelemetry Collector Contrib binary, testing only.
+  output_path: ./otelcol-dev
   version: 0.100.0-sn
   otelcol_version: 0.100.0
 
@@ -116,7 +116,7 @@ processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/tailsamplingprocessor v0.100.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.100.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/remotetapprocessor v0.100.0
-  - gomod: github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor v0.100.0
+  - gomod: github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor
 
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/nopreceiver v0.100.0
