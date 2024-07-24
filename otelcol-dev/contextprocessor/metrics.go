@@ -36,16 +36,15 @@ func NewContextMetricsProcessor(
 }
 
 // implements https://pkg.go.dev/go.opentelemetry.io/collector/consumer#Metrics
-func (ctxt *contextMetricsProcessor) ConsumeMetrics(ctx context.Context, md pmetric.Metrics) error {
+func (ctxt *contextMetricsProcessor) ConsumeMetrics(ctx context.Context, md pmetric.Metrics) (err error) {
 	span := trace.SpanFromContext(ctx)
 	span.AddEvent("Start processing.", ctxt.eventOptions)
 	rms := md.ResourceMetrics()
-	for i := 0; i < rms.Len(); i++ {
+	for i := 0; i < rms.Len() && err == nil; i++ {
 		attrs := rms.At(i).Resource().Attributes()
 		newCtx := ctxt.actionsRunner.Apply(ctx, attrs)
-		if err := ctxt.nextConsumer.ConsumeMetrics(newCtx, md); err != nil {
-			return err
-		}
+		err = ctxt.nextConsumer.ConsumeMetrics(newCtx, md)
 	}
 	span.AddEvent("End processing.", ctxt.eventOptions)
+	return err
 }
