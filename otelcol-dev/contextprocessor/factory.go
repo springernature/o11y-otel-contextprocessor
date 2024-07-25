@@ -42,7 +42,7 @@ type metricsProcessor struct {
 
 func createMetricsProcessor(
 	_ context.Context,
-	set processor.CreateSettings,
+	set processor.Settings,
 	cfg component.Config,
 	nextConsumer consumer.Metrics) (processor.Metrics, error) {
 
@@ -72,7 +72,7 @@ type logsProcessor struct {
 
 func createLogsProcessor(
 	_ context.Context,
-	set processor.CreateSettings,
+	set processor.Settings,
 	cfg component.Config,
 	nextConsumer consumer.Logs) (processor.Logs, error) {
 
@@ -102,7 +102,7 @@ type tracesProcessor struct {
 
 func createTracesProcessor(
 	_ context.Context,
-	set processor.CreateSettings,
+	set processor.Settings,
 	cfg component.Config,
 	nextConsumer consumer.Traces) (processor.Traces, error) {
 
