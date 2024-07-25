@@ -41,9 +41,12 @@ func (ctxt *contextMetricsProcessor) ConsumeMetrics(ctx context.Context, md pmet
 	span.AddEvent("Start processing.", ctxt.eventOptions)
 	rms := md.ResourceMetrics()
 	for i := 0; i < rms.Len() && err == nil; i++ {
-		attrs := rms.At(i).Resource().Attributes()
+		rm := rms.At(i)
+		attrs := rm.Resource().Attributes()
 		newCtx := ctxt.actionsRunner.Apply(ctx, attrs)
-		err = ctxt.nextConsumer.ConsumeMetrics(newCtx, md)
+		newMd := pmetric.NewMetrics()
+		rm.CopyTo(newMd.ResourceMetrics().AppendEmpty())
+		err = ctxt.nextConsumer.ConsumeMetrics(newCtx, newMd)
 	}
 	span.AddEvent("End processing.", ctxt.eventOptions)
 	return err
