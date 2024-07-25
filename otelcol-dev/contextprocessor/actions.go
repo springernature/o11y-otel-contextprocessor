@@ -201,8 +201,7 @@ func (ar *ActionsRunner) AddAction(action ActionConfig) error {
 	return err
 }
 
-// The executeCommands method executes all the commands
-// one by one
+// The executeCommands method executes all the commands one by one
 func (ar *ActionsRunner) Apply(ctx context.Context, attrs pcommon.Map) context.Context {
 	eventContext := createEventContext(ctx, attrs)
 	for _, a := range ar.actions {
@@ -210,15 +209,3 @@ func (ar *ActionsRunner) Apply(ctx context.Context, attrs pcommon.Map) context.C
 	}
 	return eventContext.getContext()
 }
-
-// Usage
-
-// exeRunner = NewExeRunner()
-// for _, action := range cfg.Actions {
-// 	if err := exeRunner.AddAction(action); err != nil {
-// 		return err
-// 	}
-// }
-
-// // On the processor
-// newCtx = exeRunner.Apply(ctx, attrs)
