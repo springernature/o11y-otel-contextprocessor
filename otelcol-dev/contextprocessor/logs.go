@@ -36,16 +36,18 @@ func NewContextLogsProcessor(
 }
 
 // implements https://pkg.go.dev/go.opentelemetry.io/collector/consumer#Logs
-func (ctxt *contextLogsProcessor) ConsumeLogs(ctx context.Context, ld plog.Logs) error {
+func (ctxt *contextLogsProcessor) ConsumeLogs(ctx context.Context, ld plog.Logs) (err error) {
 	span := trace.SpanFromContext(ctx)
 	span.AddEvent("Start processing.", ctxt.eventOptions)
 	rsl := ld.ResourceLogs()
-	newCtx := ctx
-	if rsl.Len() > 0 {
-		// Only first batch
-		attrs := rsl.At(0).Resource().Attributes()
-		newCtx = ctxt.actionsRunner.Apply(ctx, attrs)
+	for i := 0; i < rsl.Len() && err == nil; i++ {
+		rl := rsl.At(i)
+		attrs := rl.Resource().Attributes()
+		newCtx := ctxt.actionsRunner.Apply(ctx, attrs)
+		newLd := plog.NewLogs()
+		rl.CopyTo(newLd.ResourceLogs().AppendEmpty())
+		err = ctxt.nextConsumer.ConsumeLogs(newCtx, newLd)
 	}
 	span.AddEvent("End processing.", ctxt.eventOptions)
-	return ctxt.nextConsumer.ConsumeLogs(newCtx, ld)
+	return err
 }

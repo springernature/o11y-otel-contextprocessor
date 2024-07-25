@@ -36,16 +36,19 @@ func NewContextTracesProcessor(
 }
 
 // implements https://pkg.go.dev/go.opentelemetry.io/collector/consumer#Traces
-func (ctxt *contextTracesProcessor) ConsumeTraces(ctx context.Context, td ptrace.Traces) error {
+func (ctxt *contextTracesProcessor) ConsumeTraces(ctx context.Context, td ptrace.Traces) (err error) {
+
 	span := trace.SpanFromContext(ctx)
 	span.AddEvent("Start processing.", ctxt.eventOptions)
 	rss := td.ResourceSpans()
-	newCtx := ctx
-	if rss.Len() > 0 {
-		// Only first batch
-		attrs := rss.At(0).Resource().Attributes()
-		newCtx = ctxt.actionsRunner.Apply(ctx, attrs)
+	for i := 0; i < rss.Len() && err == nil; i++ {
+		rt := rss.At(i)
+		attrs := rt.Resource().Attributes()
+		newCtx := ctxt.actionsRunner.Apply(ctx, attrs)
+		newTd := ptrace.NewTraces()
+		rt.CopyTo(newTd.ResourceSpans().AppendEmpty())
+		err = ctxt.nextConsumer.ConsumeTraces(newCtx, newTd)
 	}
 	span.AddEvent("End processing.", ctxt.eventOptions)
-	return ctxt.nextConsumer.ConsumeTraces(newCtx, td)
+	return err
 }
