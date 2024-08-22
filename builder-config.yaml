@@ -2,7 +2,7 @@ dist:
   name: otelcol-dev
   description: Local OpenTelemetry Collector Contrib binary, testing only.
   output_path: ./otelcol-dev
-  version: 0.107.0-sn3
+  version: 0.107.0-sn
   otelcol_version: 0.107.0
 
 extensions:
