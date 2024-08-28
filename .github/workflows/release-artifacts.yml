@@ -5,6 +5,8 @@ on:
     push:
       branches:
         - "main"
+      tags:
+        - '**'
 
 env:
     # Default image for the Chart
@@ -20,6 +22,7 @@ jobs:
     outputs:
       artifact: ${{ steps.artifact.outputs.artifact-id }}
       version: ${{ steps.versions.outputs.version }}
+      buildname: ${{ steps.versions.outputs.build-name }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -54,7 +57,7 @@ jobs:
       id: artifact
       uses: actions/upload-artifact@v4
       with:
-        name: otelcol-${{ steps.versions.outputs.version }}
+        name: "otelcol-${{ steps.versions.outputs.version }}_linux_amd64"
         retention-days: 1
         path: "${{ steps.versions.outputs.build-path }}/${{ steps.versions.outputs.build-name }}"
         if-no-files-found: error
@@ -66,7 +69,7 @@ jobs:
       packages: write
     needs:
     - compile
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ (github.event_name != 'pull_request') && (startsWith(github.ref, 'refs/tags/')) }}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -74,9 +77,11 @@ jobs:
       with:
         fetch-depth: 0
 
-    - uses: actions/download-artifact@v4
+    - name: Download artifact
+      id: artifact
+      uses: actions/download-artifact@v4
       with:
-        name: otelcol-${{ needs.compile.outputs.version }}
+        name: "otelcol-${{ needs.compile.outputs.version }}_linux_amd64"
         path: otelcol-dev
 
     - name: Get metadata for Docker image
@@ -97,13 +102,65 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    
+
+    - name: Build and export to Docker
+      uses: docker/build-push-action@v6
+      with:
+        context: ${{ env.DOCKER_BUILD_DIR }}
+        build-args:
+        - "OTEL_BIN=${{ steps.artifact.outputs.download-path }}/${{ needs.compile.outputs.build-name }}"
+        load: true
+        tags: otelcol
+
+    # - name: Test
+    #   run: |
+    #     docker run --rm otelcol
+
     - name: Build and push to Github Packages
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: ${{ env.DOCKER_BUILD_DIR }}
         push: ${{ github.event_name != 'pull_request' }}
+        build-args:
+        - "OTEL_BIN=${{ steps.artifact.outputs.download-path }}/${{ needs.compile.outputs.build-name }}"
         tags: |
           ${{ steps.meta.outputs.tags }}
           ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.compile.outputs.version }}
         labels: ${{ steps.meta.outputs.labels }}
+
+  release:
+    permissions:
+      contents: write
+      packages: read
+    needs:
+    - compile
+    - build-image
+    if: ${{ (github.event_name != 'pull_request') && (startsWith(github.ref, 'refs/tags/')) }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get artifact
+      id: artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: "otelcol-${{ needs.compile.outputs.version }}_linux_amd64"
+        path: otelcol-dev
+  
+    - name: Get list of artifacts
+      run: |
+        cd "${{ steps.artifact.outputs.download-path }}"
+        mkdir "otelcol-custom_${{ needs.compile.outputs.version }}"
+        cp "${{ needs.compile.outputs.build-name }}" "otelcol-custom_${{ needs.compile.outputs.version }}/otelcol-custom_${{ needs.compile.outputs.version }}_linux_amd64"
+        mv "${{ needs.compile.outputs.build-name }}" "otelcol-custom_${{ needs.compile.outputs.version }}_linux_amd64.bin"
+        tar zcvf "otelcol-custom_${{ needs.compile.outputs.version }}.tgz" "otelcol-custom_${{ needs.compile.outputs.version }}"
+        rm "otelcol-custom_${{ needs.compile.outputs.version }}"
+
+    - name: Create a Release
+      uses: softprops/action-gh-release@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        files: "${{ steps.artifact.outputs.download-path }}/*"

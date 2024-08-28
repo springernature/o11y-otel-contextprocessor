@@ -87,4 +87,11 @@ If you want to get to your own custom collector compiled or updated:
     ```
     With this configuration the collector will scrape its own metrics.
 
+# Create a new release (with binaries)
 
+Releases are managed by the GH Action workflow. Please commit all changes and then push an annotated tag to the repository.
+
+```
+git tag -a v<version> -m "<comment>"
+git push --tags
+```
