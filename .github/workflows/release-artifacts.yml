@@ -100,10 +100,6 @@ jobs:
           type=ref,event=branch
           type=sha
 
-    - name: Test
-      run: |
-        ls -l build
-
     - name: Build and export to Docker
       uses: docker/build-push-action@v6
       with:
