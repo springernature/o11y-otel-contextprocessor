@@ -100,12 +100,16 @@ jobs:
           type=ref,event=branch
           type=sha
 
+    - name: Test
+      run: |
+        ls -l otelcol-devß
+
     - name: Build and export to Docker
       uses: docker/build-push-action@v6
       with:
         context: ${{ env.DOCKER_BUILD_DIR }}
         build-args: |
-          "OTEL_BIN=${{ steps.artifact.outputs.download-path }}/${{ needs.compile.outputs.build-name }}"
+          "OTEL_BIN=otelcol-dev/${{ needs.compile.outputs.build-name }}"
         load: true
         tags: otelcol
 
