@@ -22,7 +22,7 @@ jobs:
     outputs:
       artifact: ${{ steps.artifact.outputs.artifact-id }}
       version: ${{ steps.versions.outputs.version }}
-      buildname: ${{ steps.versions.outputs.build-name }}
+      build-name: ${{ steps.versions.outputs.build-name }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
