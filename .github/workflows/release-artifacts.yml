@@ -38,13 +38,14 @@ jobs:
       id: versions
       run: |
         OTELCOL_VERSION=$(awk -F':' '/^[[:blank:]]+otelcol_version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print $2 }' builder-config.yaml)
-        echo "otelcol-version=$OTELCOL_VERSION" >> $GITHUB_OUTPUT
+        echo "otelcol-version=$OTELCOL_VERSION" | tee -a $GITHUB_OUTPUT
         BUILD_PATH=$(awk -F':' '/^[[:blank:]]+output_path[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print $2 }' builder-config.yaml)
-        echo "build-path=$BUILD_PATH" >> $GITHUB_OUTPUT
+        echo "build-path=$BUILD_PATH" | tee -a  $GITHUB_OUTPUT
         BUILD_NAME=$(awk -F':' '/^[[:blank:]]+name[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print $2 }' builder-config.yaml)
-        echo "build-name=$BUILD_NAME" >> $GITHUB_OUTPUT
+        echo "build-name=$BUILD_NAME" | tee -a $GITHUB_OUTPUT
         VERSION=$(awk -F':' '/^[[:blank:]]+version[[:blank:]]*:/{ gsub("\"","",$2); gsub(" ", "", $2); print $2 }' builder-config.yaml)
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" | tee -a  $GITHUB_OUTPUT
+
 
     - name: Download the collector builder
       run: |
