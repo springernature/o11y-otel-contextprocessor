@@ -163,7 +163,7 @@ jobs:
         cp "${{ needs.compile.outputs.build-name }}" "otelcol-custom_${{ needs.compile.outputs.version }}/otelcol-custom_${{ needs.compile.outputs.version }}_linux_amd64"
         mv "${{ needs.compile.outputs.build-name }}" "otelcol-custom_${{ needs.compile.outputs.version }}_linux_amd64.bin"
         tar zcvf "otelcol-custom_${{ needs.compile.outputs.version }}.tgz" "otelcol-custom_${{ needs.compile.outputs.version }}"
-        rm "otelcol-custom_${{ needs.compile.outputs.version }}"
+        rm -rf "otelcol-custom_${{ needs.compile.outputs.version }}"
 
     - name: Create a Release
       uses: softprops/action-gh-release@v2
