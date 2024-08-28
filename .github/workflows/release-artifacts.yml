@@ -107,8 +107,8 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: ${{ env.DOCKER_BUILD_DIR }}
-        build-args:
-        - "OTEL_BIN=${{ steps.artifact.outputs.download-path }}/${{ needs.compile.outputs.build-name }}"
+        build-args: |
+          "OTEL_BIN=${{ steps.artifact.outputs.download-path }}/${{ needs.compile.outputs.build-name }}"
         load: true
         tags: otelcol
 
@@ -121,8 +121,8 @@ jobs:
       with:
         context: ${{ env.DOCKER_BUILD_DIR }}
         push: ${{ github.event_name != 'pull_request' }}
-        build-args:
-        - "OTEL_BIN=${{ steps.artifact.outputs.download-path }}/${{ needs.compile.outputs.build-name }}"
+        build-args: |
+          "OTEL_BIN=${{ steps.artifact.outputs.download-path }}/${{ needs.compile.outputs.build-name }}"
         tags: |
           ${{ steps.meta.outputs.tags }}
           ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.compile.outputs.version }}
