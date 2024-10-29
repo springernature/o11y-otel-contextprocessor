@@ -82,7 +82,7 @@ processors:
 
 ## Usage
 
-It is **highly** recommended to use this processor with `groupbyattrs` and `groupbytrace` processors together, potentially the batch processor can be used.
+It is **highly** recommended to use this processor with `groupbyattrs` processor, potentially the batch processor can be used. This is a example configuration:
 
 ```yaml
 extensions:
@@ -90,20 +90,56 @@ extensions:
     headers:
       - action: update
         key: X-Scope-OrgID
-        from_context: tenant
+        from_context: x-scope-orgid
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        include_metadata: true
+      http:
+        include_metadata: true
+
 
 processors:
   batch/tenant:
+    send_batch_size: 1000
+    send_batch_max_size: 2000
+    metadata_keys:
+    - x-scope-orgid
+    timeout: 1s
 
   groupbyattrs/tenant:
-    keys: [tenant]
+    keys: [x-scope-orgid]
 
   context/tenant:
     actions:
     - action: upsert
-      key: tenant
+      key: x-scope-orgid
       value: anonymous
       from_attribute: tenant
+
+  # In this example, each tenant has its own namespace. Data can come from different clusters!
+  transform/tenant:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(cache["tenant"], "anonymous")
+          - set(cache["tenant"], attributes["k8s.namespace.name"])
+          - set(attributes["tenant"], cache["tenant"]) where attributes["tenant"] == nil or attributes["tenant"] == ""
+    log_statements:
+      - context: resource
+        statements:
+          - set(cache["tenant"], "anonymous")
+          - set(cache["tenant"], attributes["k8s.namespace.name"])
+          - set(attributes["tenant"], cache["tenant"]) where attributes["tenant"] == nil or attributes["tenant"] == ""
+    trace_statements:
+      - context: resource
+        statements:
+          - set(cache["tenant"], "anonymous")
+          - set(cache["tenant"], attributes["k8s.namespace.name"])
+          - set(attributes["tenant"], cache["tenant"]) where attributes["tenant"] == nil or attributes["tenant"] == ""
 
 exporters:
   prometheusremotewrite/mimir:
@@ -113,11 +149,36 @@ exporters:
     auth:
       authenticator: headers_setter
 
+  otlphttp/loki:
+    endpoint: "http://loki-gateway/loki/otlp/v1/logs"
+    tls:
+      insecure: true
+    auth:
+      authenticator: headers_setter
+
+  otlp/tempo:
+    endpoint: "dns:///tempo-distributor-discovery.ns.svc.cluster.local:4317"
+    compression: "gzip"
+    tls:
+      insecure: true
+    auth:
+      authenticator: headers_setter
+
+
 pipelines:
   metrics:
-    receivers: [ ... ]
-    processors: [batch/tenant, groupbyattrs/tenant, context/tenant]
+    receivers: [otlp]
+    processors: [transform/tenant, context/tenant, groupbyattrs/tenant, batch/tenant]
     exporters: [prometheusremotewrite/mimir]
+  logs: 
+    receivers: [otlp]
+    processors: [transform/tenant, context/tenant, groupbyattrs/tenant, batch/tenant]
+    exporters: [otlphttp/loki]
+  traces:
+    receivers: [otlp]
+    processors: [transform/tenant, context/tenant, groupbyattrs/tenant, batch/tenant]
+    exporters: [otlp/tempo]
+
   extensions: 
   - headers_setter
 ```
@@ -125,4 +186,5 @@ pipelines:
 
 ## Warnings
 
-In general, the Context processor is a very safe processor to use. But should be used after an [Group by Attributes processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/groupbyattrsprocessor)
+In general, the Context processor is a very safe processor to use, but depending on the attribute used for the tenant and the receiver it can cause a lot of fragmentation which can affect performance sending data to the next system. The recomendation is used together with [Group by Attributes processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/groupbyattrsprocessor) and [Batch processor](https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/batchprocessor/README.md)
+
