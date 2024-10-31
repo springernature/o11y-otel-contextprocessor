@@ -110,7 +110,7 @@ processors:
     timeout: 1s
 
   groupbyattrs/tenant:
-    keys: [x-scope-orgid]
+    keys: [tenant]
 
   context/tenant:
     actions:
