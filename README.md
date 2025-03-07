@@ -35,7 +35,6 @@ If you want to get to your own custom collector compiled or updated:
         description: Local OpenTelemetry Collector Contrib binary, testing only.
         output_path: ./otelcol-dev
         version: 0.105.0-sn3
-        otelcol_version: 0.105.0
    ```
 
 4. Add the Context processor component to the processors section of `builder-config.yaml` (with the same reference you used in the `go mod init ...`). Create another section to replace this module name with the local directory where the code is (`./contextprocessor` in this case). Put the same version as the rest of the modules (this only to avoid a build error with `ocb`, is not important for the compiler!)
