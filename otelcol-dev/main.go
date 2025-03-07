@@ -8,12 +8,12 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
-	"go.opentelemetry.io/collector/confmap/converter/expandconverter"
 	envprovider "go.opentelemetry.io/collector/confmap/provider/envprovider"
 	fileprovider "go.opentelemetry.io/collector/confmap/provider/fileprovider"
 	httpprovider "go.opentelemetry.io/collector/confmap/provider/httpprovider"
 	httpsprovider "go.opentelemetry.io/collector/confmap/provider/httpsprovider"
 	yamlprovider "go.opentelemetry.io/collector/confmap/provider/yamlprovider"
+	aesprovider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/aesprovider"
 	s3provider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/s3provider"
 	secretsmanagerprovider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/secretsmanagerprovider"
 	"go.opentelemetry.io/collector/otelcol"
@@ -23,7 +23,7 @@ func main() {
 	info := component.BuildInfo{
 		Command:     "otelcol-dev",
 		Description: "Local OpenTelemetry Collector Contrib binary, testing only.",
-		Version:     "0.105.0-sn2",
+		Version:     "0.121.0-sn",
 	}
 
 	set := otelcol.CollectorSettings{
@@ -37,13 +37,23 @@ func main() {
 					httpprovider.NewFactory(),
 					httpsprovider.NewFactory(),
 					yamlprovider.NewFactory(),
+					aesprovider.NewFactory(),
 					s3provider.NewFactory(),
 					secretsmanagerprovider.NewFactory(),
 				},
-				ConverterFactories: []confmap.ConverterFactory{
-					expandconverter.NewFactory(),
-				},
 			},
+		},
+		ProviderModules: map[string]string{
+			envprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/envprovider v1.27.0",
+			fileprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/fileprovider v1.27.0",
+			httpprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/httpprovider v1.27.0",
+			httpsprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.27.0",
+			yamlprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.27.0",
+			aesprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/aesprovider v0.121.0",
+			s3provider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/s3provider v0.121.0",
+			secretsmanagerprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/secretsmanagerprovider v0.121.0",
+    	},
+		ConverterModules: []string{
 		},
 	}
 
