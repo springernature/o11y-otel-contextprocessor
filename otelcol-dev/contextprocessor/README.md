@@ -119,27 +119,34 @@ processors:
       value: anonymous
       from_attribute: tenant
 
+  groupbyattrs:
+    # Create groups where all telemetry in each group will be for the same tenant.
+    # Useful in case that attributes are at datapoint level and they will be moved to resouce level
+    # This is an example! In this case all metrics with datapoint.attribute source_id will belong
+    # to the same tenant
+    keys: [source_id]
+
   # In this example, each tenant has its own namespace. Data can come from different clusters!
   transform/tenant:
     error_mode: ignore
     metric_statements:
       - context: resource
         statements:
-          - set(cache["tenant"], "anonymous")
-          - set(cache["tenant"], attributes["k8s.namespace.name"])
-          - set(attributes["tenant"], cache["tenant"]) where attributes["tenant"] == nil or attributes["tenant"] == ""
+          - set(resource.cache["tenant"], "anonymous")
+          - set(resource.cache["tenant"], resource.attributes["k8s.namespace.name"])
+          - set(resource.attributes["tenant"], resource.cache["tenant"]) where resource.attributes["tenant"] == ""
     log_statements:
       - context: resource
         statements:
-          - set(cache["tenant"], "anonymous")
-          - set(cache["tenant"], attributes["k8s.namespace.name"])
-          - set(attributes["tenant"], cache["tenant"]) where attributes["tenant"] == nil or attributes["tenant"] == ""
+          - set(resource.cache["tenant"], "anonymous")
+          - set(resource.cache["tenant"], resource.attributes["k8s.namespace.name"])
+          - set(resource.attributes["tenant"], resource.cache["tenant"]) where resource.attributes["tenant"] == ""
     trace_statements:
       - context: resource
         statements:
-          - set(cache["tenant"], "anonymous")
-          - set(cache["tenant"], attributes["k8s.namespace.name"])
-          - set(attributes["tenant"], cache["tenant"]) where attributes["tenant"] == nil or attributes["tenant"] == ""
+          - set(resource.cache["tenant"], "anonymous")
+          - set(resource.cache["tenant"], resource.attributes["k8s.namespace.name"])
+          - set(resource.attributes["tenant"], resource.cache["tenant"]) where resource.attributes["tenant"] == ""
 
 exporters:
   prometheusremotewrite/mimir:
@@ -168,15 +175,27 @@ exporters:
 pipelines:
   metrics:
     receivers: [otlp]
-    processors: [transform/tenant, context/tenant, groupbyattrs/tenant, batch/tenant]
+    # groupbyattrs may not be needed if the attribute to map the tenant is at resource level!!
+    # if the attribute is at lower level (eg spans, datapoints, loglines), then it will be mandatory in order to
+    # create group with the attribute at resource level.
+    # For example, if the data comes from filelog receiver and each file belongs to its own tenant, groupbyattrs is not needed.
+    processors: [groupbyattrs, transform/tenant, groupbyattrs/tenant, context/tenant, batch/tenant]
     exporters: [prometheusremotewrite/mimir]
   logs: 
     receivers: [otlp]
-    processors: [transform/tenant, context/tenant, groupbyattrs/tenant, batch/tenant]
+    # groupbyattrs may not be needed if the attribute to map the tenant is at resource level!!
+    # if the attribute is at lower level (eg spans, datapoints, loglines), then it will be mandatory in order to
+    # create group with the attribute at resource level.
+    # For example, if the data comes from filelog receiver and each file belongs to its own tenant, groupbyattrs is not needed.
+    processors: [groupbyattrs, transform/tenant, groupbyattrs/tenant, context/tenant, batch/tenant]
     exporters: [otlphttp/loki]
   traces:
     receivers: [otlp]
-    processors: [transform/tenant, context/tenant, groupbyattrs/tenant, batch/tenant]
+    # groupbyattrs may not be needed if the attribute to map the tenant is at resource level!!
+    # if the attribute is at lower level (eg spans, datapoints, loglines), then it will be mandatory in order to
+    # create group with the attribute at resource level.
+    # For example, if the data comes from filelog receiver and each file belongs to its own tenant, groupbyattrs is not needed.
+    processors: [groupbyattrs, transform/tenant, groupbyattrs/tenant, context/tenant, batch/tenant]
     exporters: [otlp/tempo]
 
   extensions: 
