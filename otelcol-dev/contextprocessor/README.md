@@ -202,6 +202,12 @@ pipelines:
   - headers_setter
 ```
 
+This processor can be combined with the `k8sattributes` processor to assign tenant based on annotations given to pods or namespaces. The pipeline would be:
+
+```
+    processors: [k8sattributes, filter/by-annotations, transform/get-tenant-from-annotations, groupbyattrs/tenant, context/tenant]
+```
+
 
 ## Warnings
 
