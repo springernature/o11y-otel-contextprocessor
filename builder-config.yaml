@@ -126,7 +126,7 @@ processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/tailsamplingprocessor v0.123.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.123.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/remotetapprocessor v0.123.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/datadogsemanticsprocessor v0.121.1
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/datadogsemanticsprocessor v0.123.0
   - gomod: github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor v0.123.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/cfattributesprocessor v0.123.0
 
@@ -261,4 +261,3 @@ providers:
 replaces:
   - github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor => ./contextprocessor
   - github.com/open-telemetry/opentelemetry-collector-contrib/processor/cfattributesprocessor => github.com/SpringerPE/opentelemetry-collector-contrib/processor/cfattributesprocessor f0df57c9f5b3636ca9fb995a292df5654f6895ed
-  
