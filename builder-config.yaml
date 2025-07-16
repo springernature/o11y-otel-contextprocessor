@@ -2,7 +2,7 @@ dist:
   name: otelcol-dev
   description: OpenTelemetry Collector Contrib binary with contextprocessor and cfattributesprocessor
   output_path: ./otelcol-dev
-  version: 0.130.0-sn0
+  version: 0.130.0-sn1
 
 extensions:
   - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.130.0
@@ -270,4 +270,4 @@ providers:
 
 replaces:
   - github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor => ./contextprocessor
-  - github.com/open-telemetry/opentelemetry-collector-contrib/processor/cfattributesprocessor => github.com/SpringerPE/opentelemetry-collector-contrib/processor/cfattributesprocessor cc14d73d581474be461a10ad0c8433a140c317b4
+  - github.com/open-telemetry/opentelemetry-collector-contrib/processor/cfattributesprocessor => github.com/SpringerPE/opentelemetry-collector-contrib/processor/cfattributesprocessor 9d4f89424cadf0d598264fe2a68d4e08ff09a844
