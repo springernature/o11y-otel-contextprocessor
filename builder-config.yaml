@@ -271,4 +271,4 @@ providers:
 
 replaces:
   - github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor => ./contextprocessor
-  - github.com/open-telemetry/opentelemetry-collector-contrib/processor/cfattributesprocessor => github.com/SpringerPE/opentelemetry-collector-contrib/processor/cfattributesprocessor 91031296db1b842580a5eb68f2d583ff098c1ca0
+  - github.com/open-telemetry/opentelemetry-collector-contrib/processor/cfattributesprocessor => github.com/SpringerPE/opentelemetry-collector-contrib/processor/cfattributesprocessor ce94a3e074f632274621a8b0d20e110aaefa187f
