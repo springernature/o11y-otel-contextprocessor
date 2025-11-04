@@ -91,6 +91,7 @@ If you want to get to your own custom collector compiled or updated:
 Releases are managed by the GH Action workflow. Please commit all changes and then push an annotated tag to the repository.
 
 ```
+# Make sure you have updated the version in builder-config.yaml! 
 git tag -a v<version> -m "<comment>"
 git push --tags
 ```
