@@ -48,8 +48,22 @@ jobs:
 
     - name: Download the collector builder
       run: |
-        echo "Downloading OCB version ${OTELCOL_VERSION}: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${OTELCOL_VERSION}/ocb_${OTELCOL_VERSION}_linux_amd64"
-        curl -Ss -fL -o ocb https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${OTELCOL_VERSION}/ocb_${OTELCOL_VERSION}_linux_amd64
+        OCB_URL="https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${OTELCOL_VERSION}/ocb_${OTELCOL_VERSION}_linux_amd64"
+        echo "Attempting to download OCB version ${OTELCOL_VERSION}: ${OCB_URL}"
+        if curl -Ss -fL -o ocb "${OCB_URL}"; then
+          echo "Successfully downloaded OCB version ${OTELCOL_VERSION}"
+        else
+          # Extract major and minor version, set patch to 0
+          FALLBACK_VERSION=$(echo "${OTELCOL_VERSION}" | awk -F'.' '{print $1"."$2".0"}')
+          FALLBACK_URL="https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${FALLBACK_VERSION}/ocb_${FALLBACK_VERSION}_linux_amd64"
+          echo "Attempting to download OCB fallback version ${FALLBACK_VERSION}: ${FALLBACK_URL}"
+          if curl -Ss -fL -o ocb "${FALLBACK_URL}"; then
+            echo "Successfully downloaded OCB fallback version ${FALLBACK_VERSION}"
+          else
+            echo "Failed to download both OCB version ${OTELCOL_VERSION} and fallback version ${FALLBACK_VERSION}"
+            exit 1
+          fi
+        fi
         chmod +x ocb
       env:
         OTELCOL_VERSION: "${{ steps.versions.outputs.otelcol-version }}"
