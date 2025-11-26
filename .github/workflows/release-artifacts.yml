@@ -48,6 +48,7 @@ jobs:
 
     - name: Download the collector builder
       run: |
+        echo "Downloading OCB version ${OTELCOL_VERSION}: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${OTELCOL_VERSION}/ocb_${OTELCOL_VERSION}_linux_amd64"
         curl -Ss -fL -o ocb https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${OTELCOL_VERSION}/ocb_${OTELCOL_VERSION}_linux_amd64
         chmod +x ocb
       env:
