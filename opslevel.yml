@@ -1,0 +1,13 @@
+version: 1
+component:
+  name: o11y-otel-contextprocessor
+  owner: engineering-enablement
+  description: "Processor to manipulate Context Metadata in OTEL Collector for Metrics, Logs and Traces"
+  type: application_module
+  lifecycle: core
+  tier: Internal-Only
+  language: shell
+  system: APPL-437
+  properties:
+    pipelines:
+      - workflow_89798501  # .github/workflows/release-artifacts.yml
