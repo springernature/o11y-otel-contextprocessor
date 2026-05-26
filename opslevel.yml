@@ -1,7 +1,7 @@
 version: 1
 component:
   name: o11y-otel-contextprocessor
-  owner: engineering-enablement
+  owner: ee-observe
   description: "Processor to manipulate Context Metadata in OTEL Collector for Metrics, Logs and Traces"
   type: application_module
   lifecycle: core
