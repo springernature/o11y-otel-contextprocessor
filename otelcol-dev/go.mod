@@ -2,7 +2,7 @@
 
 module go.opentelemetry.io/collector/cmd/builder
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/aesprovider v0.145.0
@@ -448,7 +448,7 @@ require (
 	github.com/IBM/sarama v1.46.3 // indirect
 	github.com/Khan/genqlient v0.8.1 // indirect
 	github.com/KimMachineGun/automemlimit v0.7.5 // indirect
-	github.com/Masterminds/semver/v3 v3.4.0 // indirect
+	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/RoaringBitmap/roaring/v2 v2.8.0 // indirect
 	github.com/SAP/go-hdb v1.14.19 // indirect
@@ -1013,7 +1013,7 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.39.0 // indirect
 	go.opentelemetry.io/otel/log v0.15.0 // indirect
 	go.opentelemetry.io/otel/metric v1.39.1-0.20260115134311-f809f7d71e2d // indirect
-	go.opentelemetry.io/otel/schema v0.0.14 // indirect
+	go.opentelemetry.io/otel/schema v0.0.17 // indirect
 	go.opentelemetry.io/otel/sdk v1.39.0 // indirect
 	go.opentelemetry.io/otel/sdk/log v0.14.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.39.1-0.20260115134311-f809f7d71e2d // indirect
