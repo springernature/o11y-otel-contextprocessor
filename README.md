@@ -37,17 +37,20 @@ If you want to get to your own custom collector compiled or updated:
         version: 0.105.0-sn3
    ```
 
-4. Add the Context processor component to the processors section of `builder-config.yaml` (with the same reference you used in the `go mod init ...`). Create another section to replace this module name with the local directory where the code is (`./contextprocessor` in this case). Put the same version as the rest of the modules (this only to avoid a build error with `ocb`, is not important for the compiler!)
-   ```
-   processors:
-   - gomod: github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor v0.105.0
+2. Add the Context processor component to the processors section of `builder-config.yaml` (with the same reference you used in the `go mod init ...`). Create another section to replace this module name with the local directory where the code is (`./contextprocessor` in this case). Put the same version as the rest of the modules (this only to avoid a build error with `ocb`, is not important for the compiler!)
 
-   replaces:
-   - github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor => ./contextprocessor
-   ```
+```yaml
+processors:
+  - gomod: github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor v0.105.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/cfattributesprocessor v0.105.0
 
-2. Run `ocb --config builder-config.yaml`. A new directory `otelcol-dev` (or what you have defined in `output_path`) is created. The code generated should not be touched, all changes should be done via the `builder-config.yaml` file.
-3. Go to new `otelcold-dev` and you will see a new executable `otelcol-dev` (or the value defined in `name`). You can execute it by providing a basic configuration file `otelcold-dev --config otelcol.yaml`:
+replaces:
+  - github.com/springernature/o11y-otel-contextprocessor/processor/contextprocessor => ./contextprocessor
+  - github.com/open-telemetry/opentelemetry-collector-contrib/processor/cfattributesprocessor => github.com/SpringerPE/opentelemetry-collector-contrib/processor/cfattributesprocessor ce94a3e074f632274621a8b0d20e110aaefa187f
+```
+
+3. Run `ocb --config builder-config.yaml`. A new directory `otelcol-dev` (or what you have defined in `output_path`) is created. The code generated should not be touched, all changes should be done via the `builder-config.yaml` file.
+4. Go to new `otelcold-dev` and you will see a new executable `otelcol-dev` (or the value defined in `name`). You can execute it by providing a basic configuration file `otelcold-dev --config otelcol.yaml`:
     ```
     cat <<EOF > otelcol.yaml
     extensions:

@@ -6,6 +6,10 @@ package main
 import (
 	"os"
 
+	aesprovider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/aesprovider"
+	googlesecretmanagerprovider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/googlesecretmanagerprovider"
+	s3provider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/s3provider"
+	secretsmanagerprovider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/secretsmanagerprovider"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
 	envprovider "go.opentelemetry.io/collector/confmap/provider/envprovider"
@@ -13,10 +17,6 @@ import (
 	httpprovider "go.opentelemetry.io/collector/confmap/provider/httpprovider"
 	httpsprovider "go.opentelemetry.io/collector/confmap/provider/httpsprovider"
 	yamlprovider "go.opentelemetry.io/collector/confmap/provider/yamlprovider"
-	aesprovider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/aesprovider"
-	s3provider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/s3provider"
-	secretsmanagerprovider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/secretsmanagerprovider"
-	googlesecretmanagerprovider "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/googlesecretmanagerprovider"
 	"go.opentelemetry.io/collector/otelcol"
 )
 
@@ -24,7 +24,7 @@ func main() {
 	info := component.BuildInfo{
 		Command:     "otelcol-dev",
 		Description: "OpenTelemetry Collector Contrib binary with contextprocessor and cfattributesprocessor",
-		Version:     "0.145.0-sn0",
+		Version:     "0.159.0-sn0",
 	}
 
 	set := otelcol.CollectorSettings{
@@ -46,23 +46,22 @@ func main() {
 			},
 		},
 		ProviderModules: map[string]string{
-			envprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/envprovider v1.51.0",
-			fileprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/fileprovider v1.51.0",
-			httpprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/httpprovider v1.51.0",
-			httpsprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.51.0",
-			yamlprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.51.0",
-			aesprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/aesprovider v0.145.0",
-			s3provider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/s3provider v0.145.0",
-			secretsmanagerprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/secretsmanagerprovider v0.145.0",
-			googlesecretmanagerprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/googlesecretmanagerprovider v0.145.0",
-    	},
-		ConverterModules: []string{
+			envprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme():                 "go.opentelemetry.io/collector/confmap/provider/envprovider v1.65.0",
+			fileprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme():                "go.opentelemetry.io/collector/confmap/provider/fileprovider v1.65.0",
+			httpprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme():                "go.opentelemetry.io/collector/confmap/provider/httpprovider v1.65.0",
+			httpsprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme():               "go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.65.0",
+			yamlprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme():                "go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.65.0",
+			aesprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme():                 "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/aesprovider v0.159.0",
+			s3provider.NewFactory().Create(confmap.ProviderSettings{}).Scheme():                  "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/s3provider v0.159.0",
+			secretsmanagerprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme():      "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/secretsmanagerprovider v0.159.0",
+			googlesecretmanagerprovider.NewFactory().Create(confmap.ProviderSettings{}).Scheme(): "github.com/open-telemetry/opentelemetry-collector-contrib/confmap/provider/googlesecretmanagerprovider v0.159.0",
 		},
+		ConverterModules: []string{},
 	}
 
 	if err := run(set); err != nil {
-	 // The error message is logged by cobra, so we intentionally
-    // avoid logging it again here to prevent duplicate output.
+		// The error message is logged by cobra, so we intentionally
+		// avoid logging it again here to prevent duplicate output.
 		os.Exit(1)
 	}
 }
