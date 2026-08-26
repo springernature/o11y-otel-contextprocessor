@@ -32,7 +32,7 @@ jobs:
     - name: Setup golang stable
       uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
       with:
-        go-version: 'stable'
+        go-version: '1.26.2'
 
     - name: Get build versions
       id: versions
@@ -165,7 +165,7 @@ jobs:
       with:
         name: "otelcol-${{ needs.compile.outputs.version }}_linux_amd64"
         path: build
-  
+
     - name: Get list of artifacts
       run: |
         cd "${{ steps.artifact.outputs.download-path }}"
