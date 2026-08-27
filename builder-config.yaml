@@ -10,7 +10,7 @@ dist:
   name: otelcol-dev
   description: OpenTelemetry Collector Contrib binary with contextprocessor and cfattributesprocessor
   output_path: ./otelcol-dev
-  version: 0.159.0-sn1
+  version: 0.159.0-sn2
 
 extensions:
   - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.159.0
