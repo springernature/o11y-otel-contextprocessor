@@ -8,6 +8,10 @@ ARG USER_UID=10001
 ARG OTEL_BIN=otelcol-dev/otelcol-dev
 USER ${USER_UID}
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --chmod=755 ${OTEL_BIN} /otelcol-contrib
 COPY otelcol-contrib.yaml /etc/otelcol-contrib/config.yaml
